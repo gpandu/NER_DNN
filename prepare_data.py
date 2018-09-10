@@ -10,24 +10,28 @@ def read_data(file_path):
     max_length = 0
     with open(file_path,'r') as file:
         for line in file:
-            if(line.split(' ')[0] == "-DOCSTART-" or line == '\n'):
-                if(len(tokens)> max_length):
-                    max_length = len(tokens)
-                tokens = []
-                tags = []
-                sentences.append(tokens)
-                output_labels.append(tags)
+            if (line.split(' ')[0] == "-DOCSTART-"):
+                continue
+            if (line == '\n'):
+                if(len(tokens)>0 or (max_length == 0)):
+                    if(len(tokens) > max_length ):
+                       max_length = len(tokens)
+                    tokens = []
+                    tags = []
+                    sentences.append(tokens)
+                    output_labels.append(tags)
+                else:
+                    continue
             else:
                 line_data = line.strip().split(' ')
                 tokens.append(line_data[0])
                 tags.append(line_data[-1])
-           
-    sentences.pop(0)
-    output_labels.pop(0)          
+        sentences.pop(-1)
+        output_labels.pop(-1)
     return sentences, output_labels, max_length       
                  
 
-def create_vocabulory(sentences):
+def get_vocabulory(sentences):
     vocabs = {}
     for tokens in sentences:
         for word in tokens:
@@ -62,28 +66,12 @@ def get_preTrained_embeddings(word_to_index,glove_vectors,vocab_size):
     for word,i in word_to_index.items():
         if i >= vocab_size:
             continue
-        if word in glove_vectors:
-            embed_vector =  glove_vectors[word]
+        if word.lower() in glove_vectors:
+            embed_vector =  glove_vectors[word.lower()]
             embed_matrix[i] = embed_vector
         else:
             embed_matrix[i] = np.random.normal(embed_dim)
-    return embed_matrix
-    
-     
-def prepare_outputs(output_labels):
-    unq_labels = set()
-    for labels in output_labels:
-        for label in labels:
-            if label not in unq_labels:
-               unq_labels.add(label)
-    i=1           
-    label_to_index = {}
-    index_to_label = {}
-    for label in unq_labels:
-        label_to_index[label] = i
-        index_to_label[i] = label
-        i += 1
-    return label_to_index, index_to_label            
+    return embed_matrix          
     
 
 def get_sequence_indices(sentences, word_to_index, max_length):
@@ -93,12 +81,7 @@ def get_sequence_indices(sentences, word_to_index, max_length):
           words = sentences[i]
           j = 0
           for word in words:
-              sequences[i,j] =  word_to_index[word]
-              j+=1
+              if word in word_to_index:
+                  sequences[i,j] =  word_to_index[word]
+              j+=1           
       return sequences
-
-if __name__ ==  "__main__":
-    sentences, output_labels, max_sent_length = read_data(configs.training_file)
-    words_to_index,index_to_words = create_vocabulory(sentences)
-    vocab_size = min(len(index_to_words), configs.MAX_NO_OF_WORDS)
-    print(get_sequence_indices(sentences,words_to_index,max_sent_length)[1])
