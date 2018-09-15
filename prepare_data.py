@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import configs
+from keras.preprocessing.sequence import pad_sequences
 
 def read_data(file_path):
     sentences = []
@@ -32,22 +33,18 @@ def read_data(file_path):
                  
 
 def get_vocabulory(sentences):
-    vocabs = {}
+    vocabs = set()
     for tokens in sentences:
         for word in tokens:
             if word not in vocabs:
-                vocabs[word] = 1
-            else:
-                vocabs[word] += 1
-    words = list(sorted(vocabs, key=vocabs.__getitem__, reverse=True))
+                vocabs.add(word)
+                
+    words_to_index = {'PAD': 0}
     i = 1
-    words_to_index = {}
-    index_to_words = {}
-    for word in words:
+    for word in vocabs:
         words_to_index[word] = i
-        index_to_words[i] = word
         i += 1
-    return words_to_index, index_to_words 
+    return words_to_index 
 
 
 def read_glove_vecs(glove_file):
@@ -62,9 +59,9 @@ def read_glove_vecs(glove_file):
 
 def get_preTrained_embeddings(word_to_index,glove_vectors,vocab_size):
     embed_dim = configs.EMBEDDING_DIM
-    embed_matrix = np.zeros((vocab_size, embed_dim))
+    embed_matrix = np.zeros((vocab_size+1, embed_dim))
     for word,i in word_to_index.items():
-        if i >= vocab_size:
+        if i <= 0:
             continue
         if word.lower() in glove_vectors:
             embed_vector =  glove_vectors[word.lower()]
@@ -73,6 +70,23 @@ def get_preTrained_embeddings(word_to_index,glove_vectors,vocab_size):
             embed_matrix[i] = np.random.normal(embed_dim)
     return embed_matrix          
     
+def prepare_outputs(output_labels):
+    unq_labels = {}
+    for labels in output_labels:
+        for label in labels:
+             if label not in unq_labels:
+                unq_labels[label] = 1
+             else:
+                unq_labels[label] += 1
+    unq_labels = list(sorted(unq_labels, key=unq_labels.__getitem__, reverse=True))
+    i=0           
+    label_to_index = {}
+    index_to_label = {}
+    for label in unq_labels:
+        label_to_index[label] = i
+        index_to_label[i] = label
+        i += 1
+    return label_to_index, index_to_label    
 
 def get_sequence_indices(sentences, word_to_index, max_length):
       no_of_examples  = len(sentences)
@@ -85,3 +99,29 @@ def get_sequence_indices(sentences, word_to_index, max_length):
                   sequences[i,j] =  word_to_index[word]
               j+=1           
       return sequences
+
+
+def get_orig_labels(indices, index_to_label,ref_labels):
+    seq_labels = []
+    labels = []
+    for i,index in enumerate(indices):
+        for j in range(len(ref_labels[i])):
+            labels.append(index_to_label[index[j]])
+            j+=1
+        seq_labels.append(labels)
+        labels = []
+    return seq_labels
+
+def get_chars(sentences, max_length, char_index):
+    max_wordlength=30
+    char_seqs  = []
+    chars = []
+    for i, sentence in enumerate(sentences):
+        for j,word in enumerate(sentence):
+            if len(word)<=max_wordlength:
+                chars.append([char_index[c] for c in word if c in char_index])
+        chars = pad_sequences(chars,max_wordlength,padding='post')
+        char_seqs.append(chars)
+        chars = []
+    char_seqs = pad_sequences(char_seqs,max_length,padding='post')
+    return np.asarray(char_seqs)
