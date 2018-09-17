@@ -91,13 +91,11 @@ def prepare_outputs(output_labels):
 def get_sequence_indices(sentences, word_to_index, max_length):
       no_of_examples  = len(sentences)
       sequences  = np.zeros((no_of_examples, max_length), dtype = np.int32)
-      for i in range(no_of_examples):
-          words = sentences[i]
-          j = 0
-          for word in words:
+      for i, sentence in enumerate(sentences):
+          for j, word in enumerate(sentence):
               if word in word_to_index:
                   sequences[i,j] =  word_to_index[word]
-              j+=1           
+                      
       return sequences
 
 
@@ -113,7 +111,7 @@ def get_orig_labels(indices, index_to_label,ref_labels):
     return seq_labels
 
 def get_chars(sentences, max_length, char_index):
-    max_wordlength=30
+    max_wordlength= configs.MAX_CHARS
     char_seqs  = []
     chars = []
     for i, sentence in enumerate(sentences):
