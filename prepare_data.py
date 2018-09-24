@@ -33,18 +33,14 @@ def read_data(file_path):
                  
 
 def get_vocabulory(sentences):
-    vocabs = set()
+    vocabs = {'PAD': 0}
+    i = 1
     for tokens in sentences:
         for word in tokens:
             if word not in vocabs:
-                vocabs.add(word)
-                
-    words_to_index = {'PAD': 0}
-    i = 1
-    for word in vocabs:
-        words_to_index[word] = i
-        i += 1
-    return words_to_index 
+                vocabs[word] = i
+                i+=1               
+    return vocabs 
 
 
 def read_glove_vecs(glove_file):
