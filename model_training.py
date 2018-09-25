@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
-from keras.models import Model
-from keras.layers import Input, LSTM, Bidirectional, TimeDistributed, Dropout, concatenate, Flatten
-from keras.layers.convolutional import Conv1D, MaxPooling1D
-from keras.initializers import RandomUniform
 from keras.callbacks import Callback
-from keras.layers.embeddings import Embedding
-from keras.utils import to_categorical
 import prepare_data as prd
 import configs
 import numpy as np
 from seqeval.metrics import f1_score
 from keras.callbacks import ModelCheckpoint
-from keras_contrib.layers import CRF
-from keras.optimizers import SGD
 import model as  mdl
-#from keras.backend import manual_variable_initialization 
+from keras.utils import plot_model
 
 class Metrics(Callback):
     def on_train_begin(self, logs={}):
@@ -32,40 +24,6 @@ class Metrics(Callback):
         return
  
 
-def one_hot_encodings(examples,max_length,classes,label):
-    encodings = np.zeros((examples,max_length,classes), dtype = np.int32)
-    for i,item in enumerate(label):
-        encodings[i,:,:] = to_categorical(item,classes)
-    return encodings  
-    
-
-def get_model():
-    #character level embeddings
-    init_value = np.sqrt(3/configs.CHAR_EMBDS_DIM)
-    chars_input = Input(shape=(max_length,configs.MAX_CHARS,), dtype='int32', name='char_input')
-    chars_emb = TimeDistributed(Embedding(input_dim = len(char_index), output_dim = configs.CHAR_EMBDS_DIM,
-                        embeddings_initializer=RandomUniform(minval=-init_value, maxval=init_value), trainable=True, name='char_emb'))(chars_input)
-    chars_cnn = TimeDistributed(Conv1D(kernel_size=3, filters=configs.NO_OF_FILTERS, padding='same',activation='tanh', strides=1))(chars_emb) 
-    max_out = TimeDistributed(MaxPooling1D(pool_size=configs.POOL_SIZE))(chars_cnn) 
-    chars = TimeDistributed(Flatten())(max_out)
-    chars = Dropout(0.2)(chars)
-    # Word Embeddings
-    words_input = Input(shape=(max_length,),dtype='int32',name='word_input')
-    word_embed = Embedding(input_dim=word_embeddings.shape[0], output_dim=word_embeddings.shape[1],
-                       weights=[word_embeddings], trainable=False, name='word_embed')(words_input)
-    word_embed = Dropout(0.2)(word_embed)
-
-    output = concatenate([word_embed,chars])
-    output = Bidirectional(LSTM(max_length, return_sequences=True))(output)
-    output = Dropout(0.2)(output)
-    crf =  CRF(no_of_classes, sparse_target = True)
-    output = crf(output)
-    model = Model(inputs=[words_input, chars_input], outputs=[output])
-    sgd = SGD(lr=0.015, decay=0.05, momentum=0.9, nesterov=False,clipvalue = 5.0)
-    model.compile(loss= crf.loss_function, optimizer=sgd, metrics = [crf.accuracy])
-    return model
-     
-
 #Loading training examples/samples
 sentences, output_labels, max_length = prd.read_data(configs.TRAINING_FILE)
 word_to_index = prd.get_vocabulory(sentences)
@@ -75,8 +33,6 @@ char_indices = prd.get_chars(sentences, max_length, char_index)
 vocab_size = len(word_to_index)
 glove_vectors = prd.read_glove_vecs(configs.GLOVE_EMBEDDINGS)
 word_embeddings = prd.get_preTrained_embeddings(word_to_index,glove_vectors,vocab_size)
-print(word_embeddings[1])
-print(word_embeddings[2])
 max_length = min(configs.MAX_SEQ_LEN, max_length)
 
 with open(configs.DICT_FILE, 'w') as file:
@@ -108,7 +64,7 @@ model = mdl.get_model(word_embeddings, max_length, len(char_index), no_of_classe
 model.summary()
 
 metrics =  Metrics()
-checkpointer = ModelCheckpoint(configs.MODEL_FILE, monitor = 'loss', verbose=1, save_best_only=True,save_weights_only=True, period=1, mode='min')
+checkpointer = ModelCheckpoint(configs.MODEL_FILE, monitor = 'val_acc', verbose=1, save_best_only=True,save_weights_only=True, period=1, mode='max')
 
 model.fit(x = [train_indeces,char_indices] , y = np.expand_dims(labels,axis=-1), batch_size=configs.BATCH_SIZE,epochs= configs.EPOCHS,
           verbose=1, validation_data=([indeces_v,char_indices_v], np.expand_dims(labels_v,axis=-1)), callbacks = [metrics,checkpointer], shuffle=False)
