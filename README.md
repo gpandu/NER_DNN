@@ -7,6 +7,8 @@ This architecture has two input layers with word indices as input to one layer a
 Uses CNN to train character level embeddings and pre-trianed word embeddings for words on the other side.
 Concatenates both inputs and feeds to the Bi-directional LSTM with CRF layer on the output side
 
+![](arch.png)
+
 Observations:
 1)Model is able capture context of the words due to word embeddings, but some words from training data that doesn't have the embeddings are not getting labeled correctly. Adopted character level embeddings to represent these words. Char level embeddings are able to represent less frequent words and seems to be capturing local temporal context for the words as well. These character level embeddings added about 6% to the F1 score.
 2)For sequence Labelling, used Bi-LSTM as it learns context from left and right temporal words which is critical for named entity recognition
