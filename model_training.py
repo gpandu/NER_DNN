@@ -6,7 +6,6 @@ import numpy as np
 from seqeval.metrics import f1_score
 from keras.callbacks import ModelCheckpoint
 import model as  mdl
-from keras.utils import plot_model
 
 class Metrics(Callback):
     def on_train_begin(self, logs={}):

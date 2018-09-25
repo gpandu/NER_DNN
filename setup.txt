@@ -1,0 +1,26 @@
+IDE:
+  Anaconda Platform with Spyder-3.2.6
+  
+Dependencies:
+   python - 3.6.6 
+   keras - 2.2.2 
+   keras_contrib - 2.0.8 
+   Numpy - 1.14.2 
+   seqeval - 0.0.5
+  
+Instructions for the execution:
+1)Import the repository as a spyder project or create a new project and place all these files.    
+1)Before executing, we need to download glove embeddings with 100d file from https://nlp.stanford.edu/projects/glove/
+  or https://www.kaggle.com/rtatman/glove-global-vectors-for-word-representation 
+2)Place the glove embeddings file in 'data' folder
+3)Change the constants in configs.py if we want try with other constants/parameters.
+  batch_size set to 32 due time constraint. We can decrease batch_size and increase epochs to get good F1-score.
+4)Run the model_training.py file which will load the training data and starts the training.
+  training progress logs will get printed on the IDE console.
+5)Once training is done, model weights will get saved as 'h5' file in current directory. Other information like word_to_index 
+  and char_to_index that are required during testing will get saved in other file.
+6)To test the model, run test.py which will be re-create the model and model will get loaded with saved weights.
+  Data provided in test.txt file will be used to compute F1-score.
+
+NOTE: train.txt, valid.txt and test.txt will be there in data folder.
+  
