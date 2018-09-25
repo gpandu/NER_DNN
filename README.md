@@ -31,8 +31,8 @@ Hyper-Parameter Tuning:
    
 F1-Score on test set:  
   With epochs = 30 and batch-size = 32  
-  F1-score---> 0.8504007925785823  
-  Report---->                
+  F1-score---> 85.04  
+  Report----> (scaled to [0,1])                 
                 
                 precision  recall   f1-score  support 
                 
