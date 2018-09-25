@@ -25,16 +25,18 @@ Hyper-Parameter Tuning:
    For CNN-filters of [20,30]  
    F1-score on validation set --->  [89.75,89.40]
    
-
+   For CNN Filter-size of [3,7]  
+   F1-score on validation set --->  [89.40,89.22]  
+   
+   
 F1-Score on test set:  
   With epochs = 30 and batch-size = 32  
   F1-score---> 0.8504007925785823  
   Report---->                
-                precision    recall  f1-score   support  
+                precision  recall   f1-score  support  
 
         LOC       0.91      0.85      0.88      1653
         PER       0.94      0.89      0.92      1602
        MISC       0.77      0.76      0.77       702
         ORG       0.78      0.82      0.80      1660
-
-avg / total       0.86      0.84      0.85      5617
+      avg/total   0.86      0.84      0.85      5617
