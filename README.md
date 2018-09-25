@@ -2,6 +2,8 @@
 
 Named Entity Recognition.
 
+Instructions for executing the program are provided in setup.txt.  
+
 Model Architecture:  
 This architecture has two input layers with word indices as input to one layer and character indices as input to the other
 Uses CNN to train character level embeddings and pre-trianed word embeddings for words on the other side.
