@@ -3,10 +3,12 @@ IDE:
   
 Dependencies:
    python - 3.6.6 
-   keras - 2.2.2 
+   keras(tensorflow backend) - 2.2.2  
+   tensorflow - 1.10.0 
    keras_contrib - 2.0.8 
    Numpy - 1.14.2 
    seqeval - 0.0.5
+   
   
 Instructions for the execution:
 1)Import the repository as a spyder project or create a new project and place all these files.    
