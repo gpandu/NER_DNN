@@ -2,7 +2,7 @@
 import prepare_data as prd
 import configs
 import numpy as np
-from seqeval.metrics import f1_score
+from seqeval.metrics import f1_score, classification_report
 import model
 
 def remove_sents(sentences_t,labels_t,max_length):
@@ -50,4 +50,5 @@ pred_label = np.argmax(pred_label,axis=-1)
 pred_label = prd.get_orig_labels(pred_label,index_labels,labels_t)
 result  = f1_score(labels_t,pred_label)
 print("F1-score--->",result)
+print('Report---->', classification_report(labels_t, pred_label))
 print("complete")
