@@ -12,8 +12,8 @@ def get_model(word_embeddings, max_length, chars_length, no_of_classes, weights=
     #character level embeddings
     init_value = np.sqrt(3/configs.CHAR_EMBDS_DIM)
     chars_input = Input(shape=(max_length,configs.MAX_CHARS,), dtype='int32', name='char_input')
-    chars_emb = TimeDistributed(Embedding(input_dim = chars_length, output_dim = configs.CHAR_EMBDS_DIM,
-                        embeddings_initializer=RandomUniform(minval=-init_value, maxval=init_value), trainable=True, name='char_emb'))(chars_input)
+    chars_emb = Embedding(input_dim = chars_length, output_dim = configs.CHAR_EMBDS_DIM,
+                        embeddings_initializer=RandomUniform(minval=-init_value, maxval=init_value), trainable=True, name='char_emb')(chars_input)
     chars_cnn = TimeDistributed(Conv1D(kernel_size=configs.FILTER_SIZE, filters=configs.NO_OF_FILTERS, padding='same',activation='tanh', strides=1))(chars_emb) 
     max_out = TimeDistributed(MaxPooling1D(pool_size=configs.POOL_SIZE))(chars_cnn) 
     chars = TimeDistributed(Flatten())(max_out)

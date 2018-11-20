@@ -63,7 +63,7 @@ model = mdl.get_model(word_embeddings, max_length, len(char_index), no_of_classe
 model.summary()
 
 metrics =  Metrics()
-checkpointer = ModelCheckpoint(configs.MODEL_FILE, monitor = 'val_acc', verbose=1, save_best_only=True,save_weights_only=True, period=1, mode='max')
+checkpointer = ModelCheckpoint(configs.MODEL_FILE, monitor = 'val_acc', verbose=1, save_best_only=True,save_weights_only=True, period=3, mode='max')
 
 model.fit(x = [train_indeces,char_indices] , y = np.expand_dims(labels,axis=-1), batch_size=configs.BATCH_SIZE,epochs= configs.EPOCHS,
           verbose=1, validation_data=([indeces_v,char_indices_v], np.expand_dims(labels_v,axis=-1)), callbacks = [metrics,checkpointer], shuffle=False)

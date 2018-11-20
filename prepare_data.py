@@ -56,14 +56,21 @@ def read_glove_vecs(glove_file):
 def get_preTrained_embeddings(word_to_index,glove_vectors,vocab_size):
     embed_dim = configs.EMBEDDING_DIM
     embed_matrix = np.zeros((vocab_size+1, embed_dim))
+    add_words = []
     for word,i in word_to_index.items():
         if i <= 0:
             continue
-        if word.lower() in glove_vectors:
+        if word in glove_vectors:
             embed_vector =  glove_vectors[word.lower()]
             embed_matrix[i] = embed_vector
+        elif word.lower() in glove_vectors:
+            embed_vector =  glove_vectors[word.lower()]
+            embed_matrix[i] = embed_vector
+            add_words.append(word)      
         else:
-            embed_matrix[i] = np.random.normal(embed_dim)
+            embed_matrix[i] = np.random.normal(embed_dim)       
+    for word in add_words:
+        word_to_index[word.lower()] = word_to_index[word]
     return embed_matrix          
     
 def prepare_outputs(output_labels):
@@ -91,6 +98,8 @@ def get_sequence_indices(sentences, word_to_index, max_length):
           for j, word in enumerate(sentence):
               if word in word_to_index:
                   sequences[i,j] =  word_to_index[word]
+              elif word.lower() in word_to_index:
+                  sequences[i,j] =  word_to_index[word.lower()]
                       
       return sequences
 
@@ -99,9 +108,8 @@ def get_orig_labels(indices, index_to_label,ref_labels):
     seq_labels = []
     labels = []
     for i,index in enumerate(indices):
-        for j in range(len(ref_labels[i])):
-            labels.append(index_to_label[index[j]])
-            j+=1
+        for jval in range(len(ref_labels[i])):
+            labels.append(index_to_label[index[jval]])
         seq_labels.append(labels)
         labels = []
     return seq_labels
