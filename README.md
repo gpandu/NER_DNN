@@ -2,7 +2,7 @@
 
 Named Entity Recognition.
 
-Paper:https://arxiv.org/pdf/1603.01354.pdf  
+Paper : https://arxiv.org/pdf/1603.01354.pdf  
 
 Instructions for executing the program are provided in setup.txt.  
 
