@@ -14,9 +14,9 @@ Concatenates both inputs and feeds to the Bi-directional LSTM with CRF layer on 
 ![](arch.png)  
 
 Observations:  
-1)Model is able capture context of the words due to word embeddings, but some words from training data that doesn't have the embeddings are not getting labeled correctly. Adopted character level embeddings to represent these words. Char level embeddings are able to represent less frequent words and seems to be capturing local temporal context for the words as well. These character level embeddings added about 6% to the F1 score.  
-2)For sequence Labelling, used Bi-LSTM as it learns context from left and right temporal words which is critical for named entity recognition.    
-3)Output CRF layer performed better compared to dense layer as some of the output labels are correlated to each other.  
+1) Model captures meaning of a word due in particular context due to word embeddings, but some words from training data that doesn't have the embeddings may not get labeled correctly. Adopted character level embeddings to represent such words. Char level embeddings will represent less frequent words and words learns in the context of local named entity as we are back propagating error to char embedding layer. These character level embeddings improves final F1 score.  
+2) For sequence Labelling, used Bi-LSTM as it learns context from left and right temporal words which is critical for named entity recognition.    
+3) Output CRF layer performs better compared to dense layer as some of the output labels are correlated to the previous labels.  
 
 Hyper-Parameter Tuning:  
 1) With Word-Embedding-Dimension = 100, char-embedding-dimension = 30, CNN-filters =  30, Filter-size =3, pool-size = 15, epochs=30__
